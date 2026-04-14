@@ -5,9 +5,9 @@ export const tacticApi = {
   getAll: (params?: { tags?: string[]; search?: string }) =>
     client.get<Tactic[]>('/tactics', { params }).then(r => r.data),
   getById: (id: number) => client.get<Tactic>(`/tactics/${id}`).then(r => r.data),
-  create: (data: { name: string; description?: string; teamId?: number; isPublic?: boolean; tags?: string[]; frames?: string }) =>
+  create: (data: { name: string; description?: string; teamId?: number | null; opponentTeamId?: number | null; isPublic?: boolean; tags?: string[]; frames?: string }) =>
     client.post<Tactic>('/tactics', data).then(r => r.data),
-  update: (id: number, data: { name?: string; description?: string; teamId?: number; isPublic?: boolean; tags?: string[] }) =>
+  update: (id: number, data: { name?: string; description?: string; teamId?: number | null; opponentTeamId?: number | null; isPublic?: boolean; tags?: string[] }) =>
     client.put<Tactic>(`/tactics/${id}`, data).then(r => r.data),
   delete: (id: number) => client.delete(`/tactics/${id}`),
 

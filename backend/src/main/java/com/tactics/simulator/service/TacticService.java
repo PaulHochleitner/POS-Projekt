@@ -56,6 +56,12 @@ public class TacticService {
                     .orElseThrow(() -> new ResourceNotFoundException("Team", request.teamId()));
         }
 
+        Team opponentTeam = null;
+        if (request.opponentTeamId() != null) {
+            opponentTeam = teamRepository.findById(request.opponentTeamId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Team", request.opponentTeamId()));
+        }
+
         Set<TacticTag> tags = resolveTags(request.tags());
 
         User currentUser = getCurrentUser();
@@ -64,6 +70,7 @@ public class TacticService {
                 .name(request.name())
                 .description(request.description())
                 .team(team)
+                .opponentTeam(opponentTeam)
                 .user(currentUser)
                 .isPublic(request.isPublic() != null ? request.isPublic() : false)
                 .tags(tags)
@@ -96,6 +103,11 @@ public class TacticService {
             Team team = teamRepository.findById(request.teamId())
                     .orElseThrow(() -> new ResourceNotFoundException("Team", request.teamId()));
             tactic.setTeam(team);
+        }
+        if (request.opponentTeamId() != null) {
+            Team opponentTeam = teamRepository.findById(request.opponentTeamId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Team", request.opponentTeamId()));
+            tactic.setOpponentTeam(opponentTeam);
         }
 
         return toDto(tacticRepository.save(tactic));
@@ -150,6 +162,8 @@ public class TacticService {
                 tactic.getDescription(),
                 tactic.getTeam() != null ? tactic.getTeam().getId() : null,
                 tactic.getTeam() != null ? tactic.getTeam().getName() : null,
+                tactic.getOpponentTeam() != null ? tactic.getOpponentTeam().getId() : null,
+                tactic.getOpponentTeam() != null ? tactic.getOpponentTeam().getName() : null,
                 tactic.getIsPublic(), tactic.getCreatedAt(), tactic.getUpdatedAt(),
                 tags, versionCount, latestVersion);
     }

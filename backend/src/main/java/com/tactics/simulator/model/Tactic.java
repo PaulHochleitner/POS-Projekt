@@ -36,6 +36,10 @@ public class Tactic {
     private Team team;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "opponent_team_id")
+    private Team opponentTeam;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 

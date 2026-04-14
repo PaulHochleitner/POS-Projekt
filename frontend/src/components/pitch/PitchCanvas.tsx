@@ -1,14 +1,13 @@
 import { useRef, useEffect, useCallback, useState } from 'react';
 import { useTacticStore } from '../../store/useTacticStore';
 import { usePlaybackStore } from '../../store/usePlaybackStore';
-import { drawFrame, hitTestPlayer, hitTestBall, canvasToPercent } from './pitchRenderer';
+import { drawFrame, hitTestPlayer, hitTestBall, canvasToPercent, setRedrawCallback } from './pitchRenderer';
 import { interpolateFrame } from './interpolation';
 import type { Frame } from '../../types';
 
 interface PitchCanvasProps {
   width?: number;
   height?: number;
-  teamColor?: string;
   readOnly?: boolean;
   overrideFrame?: Frame;
 }
@@ -16,7 +15,6 @@ interface PitchCanvasProps {
 export default function PitchCanvas({
   width = 800,
   height = 520,
-  teamColor = '#1e3a5f',
   readOnly = false,
   overrideFrame,
 }: PitchCanvasProps) {
@@ -25,7 +23,8 @@ export default function PitchCanvas({
   const [dragging, setDragging] = useState<'player' | 'ball' | null>(null);
 
   const {
-    frames, currentFrameIndex, selectedPlayerId, selectedBall,
+    frames, currentFrameIndex, selectedPlayerId, selectedTeam, selectedBall,
+    homeColor, awayColor,
     updatePlayerPosition, updateBallPosition, selectPlayer, selectBall,
   } = useTacticStore();
 
@@ -39,13 +38,27 @@ export default function PitchCanvas({
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
     ctx.clearRect(0, 0, width, height);
-    drawFrame(ctx, width, height, frame, teamColor, readOnly ? null : selectedPlayerId, readOnly ? false : selectedBall);
-  }, [width, height, teamColor, selectedPlayerId, selectedBall, readOnly]);
+    drawFrame(
+      ctx, width, height, frame,
+      homeColor, awayColor,
+      readOnly ? null : selectedPlayerId,
+      readOnly ? null : selectedTeam,
+      readOnly ? false : selectedBall,
+    );
+  }, [width, height, homeColor, awayColor, selectedPlayerId, selectedTeam, selectedBall, readOnly]);
 
   // Static render
   useEffect(() => {
     if (!isPlaying) render(currentFrame);
   }, [currentFrame, isPlaying, render]);
+
+  // Re-render when an avatar image finishes loading
+  useEffect(() => {
+    setRedrawCallback(() => {
+      if (!isPlaying && canvasRef.current) render(currentFrame);
+    });
+    return () => setRedrawCallback(null);
+  }, [render, currentFrame, isPlaying]);
 
   // Animation loop
   useEffect(() => {
@@ -98,9 +111,9 @@ export default function PitchCanvas({
     if (readOnly || isPlaying) return;
     const [cx, cy] = getCanvasCoords(e);
 
-    const playerId = hitTestPlayer(cx, cy, width, height, currentFrame.players);
-    if (playerId !== null) {
-      selectPlayer(playerId);
+    const hit = hitTestPlayer(cx, cy, width, height, currentFrame.players, currentFrame.opponents);
+    if (hit) {
+      selectPlayer(hit.playerId, hit.team);
       setDragging('player');
       return;
     }
@@ -120,8 +133,8 @@ export default function PitchCanvas({
     const [cx, cy] = getCanvasCoords(e);
     const [px, py] = canvasToPercent(cx, cy, width, height);
 
-    if (dragging === 'player' && selectedPlayerId !== null) {
-      updatePlayerPosition(selectedPlayerId, px, py);
+    if (dragging === 'player' && selectedPlayerId !== null && selectedTeam !== null) {
+      updatePlayerPosition(selectedTeam, selectedPlayerId, px, py);
     } else if (dragging === 'ball') {
       updateBallPosition(px, py);
     }

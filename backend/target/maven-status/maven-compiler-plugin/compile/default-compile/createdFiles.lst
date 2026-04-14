@@ -63,7 +63,6 @@ com\tactics\simulator\dto\VersionCompareDto$DiffSummary.class
 com\tactics\simulator\repository\TacticRepository.class
 com\tactics\simulator\controller\AuthController.class
 com\tactics\simulator\controller\ValidationController.class
-com\tactics\simulator\config\CorsConfig$1.class
 com\tactics\simulator\service\TeamService.class
 com\tactics\simulator\dto\PlayerDto$CreatePlayerRequest.class
 com\tactics\simulator\model\Tactic$TacticBuilder.class

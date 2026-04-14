@@ -1,26 +1,34 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTacticStore } from '../../store/useTacticStore';
 import { tacticApi } from '../../api/tacticApi';
-import { Save, Share2, Download, Tag, X } from 'lucide-react';
+import { teamApi } from '../../api/teamApi';
+import type { Team } from '../../types';
+import { Save, Share2, Download, Tag, X, Users, Shield } from 'lucide-react';
 
 export default function TacticSidebar() {
   const {
     tacticId, name, description, isPublic, tags, uuid,
-    setTacticMeta, getFrameData,
+    teamId, opponentTeamId,
+    setTacticMeta, getFrameData, setHomeTeam, setAwayTeam,
   } = useTacticStore();
   const [tagInput, setTagInput] = useState('');
   const [saving, setSaving] = useState(false);
   const [exporting, setExporting] = useState(false);
+  const [teams, setTeams] = useState<Team[]>([]);
+
+  useEffect(() => {
+    teamApi.getAll().then(setTeams).catch(e => console.error('Could not load teams:', e));
+  }, []);
 
   const handleSave = async () => {
     setSaving(true);
     try {
       const framesJson = JSON.stringify(getFrameData());
       if (tacticId) {
-        await tacticApi.update(tacticId, { name, description, isPublic, tags });
+        await tacticApi.update(tacticId, { name, description, teamId, opponentTeamId, isPublic, tags });
         await tacticApi.createVersion(tacticId, { frames: framesJson });
       } else {
-        const created = await tacticApi.create({ name, description, isPublic, tags, frames: framesJson });
+        const created = await tacticApi.create({ name, description, teamId, opponentTeamId, isPublic, tags, frames: framesJson });
         setTacticMeta({ tacticId: created.id, uuid: created.uuid });
       }
     } catch (e) {
@@ -71,7 +79,7 @@ export default function TacticSidebar() {
     if (!tacticId) return;
     const newPublic = !isPublic;
     try {
-      await tacticApi.update(tacticId, { name, description, isPublic: newPublic, tags });
+      await tacticApi.update(tacticId, { name, description, teamId, opponentTeamId, isPublic: newPublic, tags });
       setTacticMeta({ isPublic: newPublic });
     } catch (e) {
       console.error('Share toggle failed:', e);
@@ -81,6 +89,32 @@ export default function TacticSidebar() {
   const copyShareLink = () => {
     if (uuid) {
       navigator.clipboard.writeText(`${window.location.origin}/shared/${uuid}`);
+    }
+  };
+
+  const handleHomeTeamChange = async (id: string) => {
+    if (!id) {
+      setTacticMeta({ teamId: null });
+      return;
+    }
+    try {
+      const team = await teamApi.getById(Number(id));
+      setHomeTeam(team);
+    } catch (e) {
+      console.error('Could not load home team:', e);
+    }
+  };
+
+  const handleAwayTeamChange = async (id: string) => {
+    if (!id) {
+      setTacticMeta({ opponentTeamId: null });
+      return;
+    }
+    try {
+      const team = await teamApi.getById(Number(id));
+      setAwayTeam(team);
+    } catch (e) {
+      console.error('Could not load away team:', e);
     }
   };
 
@@ -104,9 +138,43 @@ export default function TacticSidebar() {
         <textarea
           value={description}
           onChange={e => setTacticMeta({ description: e.target.value })}
-          rows={3}
+          rows={2}
           className="w-full px-3 py-2 rounded-lg bg-[#0f172a] border border-[#334155] text-white text-sm focus:border-[#4ade80] focus:outline-none resize-none"
         />
+      </div>
+
+      {/* Home team picker */}
+      <div>
+        <label className="block text-xs text-[#94a3b8] mb-1 flex items-center gap-1">
+          <Users size={12} /> Eigene Mannschaft
+        </label>
+        <select
+          value={teamId ?? ''}
+          onChange={e => handleHomeTeamChange(e.target.value)}
+          className="w-full px-3 py-2 rounded-lg bg-[#0f172a] border border-[#334155] text-white text-sm focus:border-[#4ade80] focus:outline-none"
+        >
+          <option value="">— Default —</option>
+          {teams.map(t => (
+            <option key={t.id} value={t.id}>{t.name}</option>
+          ))}
+        </select>
+      </div>
+
+      {/* Away team picker */}
+      <div>
+        <label className="block text-xs text-[#94a3b8] mb-1 flex items-center gap-1">
+          <Shield size={12} /> Gegner
+        </label>
+        <select
+          value={opponentTeamId ?? ''}
+          onChange={e => handleAwayTeamChange(e.target.value)}
+          className="w-full px-3 py-2 rounded-lg bg-[#0f172a] border border-[#334155] text-white text-sm focus:border-[#4ade80] focus:outline-none"
+        >
+          <option value="">— Default —</option>
+          {teams.map(t => (
+            <option key={t.id} value={t.id}>{t.name}</option>
+          ))}
+        </select>
       </div>
 
       {/* Tags */}

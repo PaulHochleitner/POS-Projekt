@@ -36,10 +36,10 @@ export function usePitchDrag({
     if (disabled) return;
     const [cx, cy] = getCoords(e);
 
-    const playerId = hitTestPlayer(cx, cy, width, height, frame.players);
-    if (playerId !== null) {
-      setDragState({ dragging: 'player', draggedPlayerId: playerId });
-      onSelect(playerId, false);
+    const hit = hitTestPlayer(cx, cy, width, height, frame.players, frame.opponents);
+    if (hit !== null) {
+      setDragState({ dragging: 'player', draggedPlayerId: hit.playerId });
+      onSelect(hit.playerId, false);
       return;
     }
 

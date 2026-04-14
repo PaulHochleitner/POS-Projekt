@@ -49,7 +49,7 @@ class TacticControllerTest {
 
     private TacticDto sampleTactic() {
         return new TacticDto(1L, UUID.randomUUID(), "Konter rechts", "Schneller Konter",
-                1L, "FC Test", false, LocalDateTime.now(), LocalDateTime.now(),
+                1L, "FC Test", null, null, false, LocalDateTime.now(), LocalDateTime.now(),
                 Set.of("Konter", "4-3-3"), 1,
                 new TacticVersionDto(1L, 1, "Initial", "{}", LocalDateTime.now()));
     }
@@ -85,7 +85,7 @@ class TacticControllerTest {
     @WithMockUser
     void shouldCreateTactic() throws Exception {
         TacticDto.CreateTacticRequest request = new TacticDto.CreateTacticRequest(
-                "New Tactic", "Description", null, false, Set.of("Pressing"), "{}");
+                "New Tactic", "Description", null, null, false, Set.of("Pressing"), "{}");
         when(tacticService.create(any())).thenReturn(sampleTactic());
 
         mockMvc.perform(post("/api/tactics")
@@ -98,7 +98,7 @@ class TacticControllerTest {
     @WithMockUser
     void shouldUpdateTactic() throws Exception {
         TacticDto.UpdateTacticRequest request = new TacticDto.UpdateTacticRequest(
-                "Updated Name", "New Desc", null, true, Set.of("Eckball"));
+                "Updated Name", "New Desc", null, null, true, Set.of("Eckball"));
         when(tacticService.update(eq(1L), any())).thenReturn(sampleTactic());
 
         mockMvc.perform(put("/api/tactics/1")

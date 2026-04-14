@@ -4,6 +4,7 @@ import com.tactics.simulator.dto.PlayerDto;
 import com.tactics.simulator.exception.ResourceNotFoundException;
 import com.tactics.simulator.model.Player;
 import com.tactics.simulator.repository.PlayerRepository;
+import com.tactics.simulator.config.WebConfig;
 import com.tactics.simulator.service.PlayerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -22,7 +23,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class PlayerImageController {
 
-    private static final Path UPLOAD_DIR = Paths.get("./uploads/players");
+    private static final Path UPLOAD_DIR = Paths.get(WebConfig.UPLOADS_BASE, "players");
     private static final long MAX_FILE_SIZE = 2 * 1024 * 1024;
     private static final Set<String> ALLOWED_TYPES = Set.of(
             MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE);

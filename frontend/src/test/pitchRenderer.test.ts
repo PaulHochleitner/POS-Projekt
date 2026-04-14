@@ -62,18 +62,21 @@ describe('pitchRenderer', () => {
 
   describe('hitTestPlayer', () => {
     const players: PlayerPosition[] = [
-      { playerId: 1, playerName: 'GK', playerNumber: 1, position: 'GK', x: 50, y: 50 },
+      { playerId: 1, playerName: 'GK', playerNumber: 1, position: 'GK', x: 50, y: 50, imageUrl: null },
     ];
 
     it('should detect hit on player', () => {
       // Player at 50%, 50% -> canvas center
       const cx = 30 + (50 / 100) * (W - 60);
       const cy = 30 + (50 / 100) * (H - 60);
-      expect(hitTestPlayer(cx, cy, W, H, players)).toBe(1);
+      const hit = hitTestPlayer(cx, cy, W, H, players, []);
+      expect(hit).not.toBeNull();
+      expect(hit!.playerId).toBe(1);
+      expect(hit!.team).toBe('home');
     });
 
     it('should return null for miss', () => {
-      expect(hitTestPlayer(0, 0, W, H, players)).toBeNull();
+      expect(hitTestPlayer(0, 0, W, H, players, [])).toBeNull();
     });
   });
 

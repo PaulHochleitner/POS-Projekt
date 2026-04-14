@@ -7,9 +7,10 @@ describe('interpolation', () => {
     index: 0,
     label: 'Start',
     players: [
-      { playerId: 1, playerName: 'GK', playerNumber: 1, position: 'GK', x: 50, y: 90 },
-      { playerId: 2, playerName: 'ST', playerNumber: 9, position: 'ST', x: 50, y: 20 },
+      { playerId: 1, playerName: 'GK', playerNumber: 1, position: 'GK', x: 50, y: 90, imageUrl: null },
+      { playerId: 2, playerName: 'ST', playerNumber: 9, position: 'ST', x: 50, y: 20, imageUrl: null },
     ],
+    opponents: [],
     ball: { x: 50, y: 50, carriedByPlayerId: null },
   };
 
@@ -17,9 +18,10 @@ describe('interpolation', () => {
     index: 1,
     label: 'End',
     players: [
-      { playerId: 1, playerName: 'GK', playerNumber: 1, position: 'GK', x: 50, y: 90 },
-      { playerId: 2, playerName: 'ST', playerNumber: 9, position: 'ST', x: 80, y: 10 },
+      { playerId: 1, playerName: 'GK', playerNumber: 1, position: 'GK', x: 50, y: 90, imageUrl: null },
+      { playerId: 2, playerName: 'ST', playerNumber: 9, position: 'ST', x: 80, y: 10, imageUrl: null },
     ],
+    opponents: [],
     ball: { x: 80, y: 30, carriedByPlayerId: 2 },
   };
 

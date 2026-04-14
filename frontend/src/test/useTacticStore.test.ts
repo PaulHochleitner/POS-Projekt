@@ -33,14 +33,14 @@ describe('useTacticStore', () => {
   });
 
   it('should update player position', () => {
-    useTacticStore.getState().updatePlayerPosition(1, 70, 80);
+    useTacticStore.getState().updatePlayerPosition('home', 1, 70, 80);
     const player = useTacticStore.getState().frames[0].players.find(p => p.playerId === 1);
     expect(player?.x).toBe(70);
     expect(player?.y).toBe(80);
   });
 
   it('should clamp player position to 0-100', () => {
-    useTacticStore.getState().updatePlayerPosition(1, 150, -20);
+    useTacticStore.getState().updatePlayerPosition('home', 1, 150, -20);
     const player = useTacticStore.getState().frames[0].players.find(p => p.playerId === 1);
     expect(player?.x).toBe(100);
     expect(player?.y).toBe(0);
@@ -95,7 +95,7 @@ describe('useTacticStore', () => {
   });
 
   it('should copy players to new frame', () => {
-    useTacticStore.getState().updatePlayerPosition(1, 75, 85);
+    useTacticStore.getState().updatePlayerPosition('home', 1, 75, 85);
     useTacticStore.getState().addFrame('Copy');
     const newFrame = useTacticStore.getState().frames[1];
     const gk = newFrame.players.find(p => p.playerId === 1);

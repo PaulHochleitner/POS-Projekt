@@ -2,7 +2,6 @@ package com.tactics.simulator.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -13,6 +12,8 @@ public record TacticDto(
         String description,
         Long teamId,
         String teamName,
+        Long opponentTeamId,
+        String opponentTeamName,
         Boolean isPublic,
         LocalDateTime createdAt,
         LocalDateTime updatedAt,
@@ -24,6 +25,7 @@ public record TacticDto(
             @NotBlank String name,
             String description,
             Long teamId,
+            Long opponentTeamId,
             Boolean isPublic,
             Set<String> tags,
             String frames
@@ -33,6 +35,7 @@ public record TacticDto(
             String name,
             String description,
             Long teamId,
+            Long opponentTeamId,
             Boolean isPublic,
             Set<String> tags
     ) {}

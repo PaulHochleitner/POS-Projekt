@@ -32,6 +32,8 @@ export interface Tactic {
   description: string | null;
   teamId: number | null;
   teamName: string | null;
+  opponentTeamId: number | null;
+  opponentTeamName: string | null;
   isPublic: boolean;
   createdAt: string;
   updatedAt: string;
@@ -58,8 +60,11 @@ export interface Frame {
   index: number;
   label: string;
   players: PlayerPosition[];
+  opponents: PlayerPosition[];
   ball: BallPosition;
 }
+
+export type TeamSide = 'home' | 'away';
 
 export interface PlayerPosition {
   playerId: number;
@@ -68,6 +73,7 @@ export interface PlayerPosition {
   position: string;
   x: number;
   y: number;
+  imageUrl: string | null;
 }
 
 export interface BallPosition {
