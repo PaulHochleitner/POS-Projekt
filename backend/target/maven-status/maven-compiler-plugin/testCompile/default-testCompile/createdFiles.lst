@@ -1,0 +1,7 @@
+com\tactics\simulator\service\ValidationServiceTest.class
+com\tactics\simulator\controller\TacticControllerTest.class
+com\tactics\simulator\controller\PlayerControllerTest.class
+com\tactics\simulator\controller\TeamControllerTest.class
+com\tactics\simulator\service\PlayerServiceTest.class
+com\tactics\simulator\service\TeamServiceTest.class
+com\tactics\simulator\TacticsSimulatorApplicationTests.class

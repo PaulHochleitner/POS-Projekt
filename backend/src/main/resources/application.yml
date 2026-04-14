@@ -1,0 +1,55 @@
+spring:
+  datasource:
+    url: jdbc:h2:file:./data/tactics_db;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+    database-platform: org.hibernate.dialect.H2Dialect
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+  servlet:
+    multipart:
+      max-file-size: 2MB
+      max-request-size: 2MB
+  mvc:
+    problemdetails:
+      enabled: true
+
+jwt:
+  secret: dGFjdGljcy1zaW11bGF0b3Itand0LXNlY3JldC1rZXktMjAyNi1zdXBlci1zZWN1cmUtMjU2Yml0
+  expiration: 86400000
+
+server:
+  port: 8080
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+  datasource:
+    url: jdbc:postgresql://localhost:5432/tactics_db
+    username: tactics
+    password: tactics
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  h2:
+    console:
+      enabled: false
