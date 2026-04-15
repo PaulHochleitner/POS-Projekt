@@ -2,26 +2,73 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  margin: 0;
-  background-color: #0f172a;
-  color: #f1f5f9;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+:root {
+  --stadium-green: #064e3b;
+  --pitch-green: #059669;
+  --accent-neon: #4ade80;
+  --floodlight: #f8fafc;
+  --bg-dark: #020617;
+  --card-bg: #0f172a;
+  --border-slate: #1e293b;
 }
 
-* {
-  box-sizing: border-box;
+@layer base {
+  body {
+    @apply bg-[#020617] text-slate-100 antialiased selection:bg-[#4ade80]/30 selection:text-[#4ade80];
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    overflow-x: hidden;
+  }
 }
 
+@layer components {
+  .glass-panel {
+    @apply bg-[#0f172a]/80 backdrop-blur-md border border-[#1e293b] rounded-2xl shadow-xl;
+  }
+
+  .stadium-gradient {
+    background: radial-gradient(circle at top center, rgba(6, 78, 59, 0.15) 0%, rgba(2, 6, 23, 1) 100%);
+  }
+
+  .neon-glow {
+    box-shadow: 0 0 15px rgba(74, 222, 128, 0.2);
+  }
+
+  .neon-glow-hover:hover {
+    box-shadow: 0 0 25px rgba(74, 222, 128, 0.4);
+    @apply border-[#4ade80]/50;
+  }
+}
+
+/* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #1e1e2e;
+  @apply bg-[#020617];
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #334155;
-  border-radius: 4px;
+  @apply bg-[#1e293b] rounded-full hover:bg-[#334155] transition-colors;
+}
+
+/* Animations */
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.page-transition-wrapper {
+  @apply min-h-screen w-full;
+}
+
+/* Football Pitch Pattern Background */
+.pitch-pattern {
+  background-image: radial-gradient(#1e293b 0.5px, transparent 0.5px);
+  background-size: 24px 24px;
 }

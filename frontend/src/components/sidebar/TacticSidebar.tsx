@@ -1,9 +1,16 @@
 import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useTacticStore } from '../../store/useTacticStore';
 import { tacticApi } from '../../api/tacticApi';
 import { teamApi } from '../../api/teamApi';
 import type { Team } from '../../types';
-import { Save, Share2, Download, Tag, X, Users, Shield } from 'lucide-react';
+import { Save, Share2, Download, Tag, X, Users, Shield, Info, ChevronRight, Copy, Check } from 'lucide-react';
+import { clsx, type ClassValue } from 'clsx';
+import { twMerge } from 'tailwind-merge';
+
+function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
 
 export default function TacticSidebar() {
   const {
@@ -15,6 +22,7 @@ export default function TacticSidebar() {
   const [saving, setSaving] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [teams, setTeams] = useState<Team[]>([]);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     teamApi.getAll().then(setTeams).catch(e => console.error('Could not load teams:', e));
@@ -42,7 +50,7 @@ export default function TacticSidebar() {
     if (!tacticId) return;
     const frameData = getFrameData();
     if (frameData.frames.length < 2) {
-      alert('Fuer ein animiertes GIF muessen mindestens 2 Keyframes vorhanden sein. Fuege weitere Keyframes hinzu!');
+      alert('Für ein animiertes GIF müssen mindestens 2 Keyframes vorhanden sein.');
       return;
     }
     setExporting(true);
@@ -53,7 +61,7 @@ export default function TacticSidebar() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'tactic-animation.gif';
+      a.download = `${name.replace(/\s+/g, '-').toLowerCase()}-tactic.gif`;
       a.click();
       URL.revokeObjectURL(url);
     } catch (e) {
@@ -86,10 +94,23 @@ export default function TacticSidebar() {
     }
   };
 
-  const copyShareLink = () => {
-    if (uuid) {
-      navigator.clipboard.writeText(`${window.location.origin}/shared/${uuid}`);
+  const copyShareLink = async () => {
+    if (!uuid) return;
+    // Try backend auto-tunnel first (cloudflared spawned by TunnelService).
+    // Falls back to window.location.origin if no tunnel is active.
+    let origin = window.location.origin;
+    try {
+      const res = await fetch('/api/share/tunnel-url');
+      if (res.ok) {
+        const data = await res.json();
+        if (data?.url) origin = data.url;
+      }
+    } catch {
+      /* ignore — fall back to window.location.origin */
     }
+    navigator.clipboard.writeText(`${origin}/shared/${uuid}`);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   const handleHomeTeamChange = async (id: string) => {
@@ -119,130 +140,199 @@ export default function TacticSidebar() {
   };
 
   return (
-    <div className="bg-[#1e293b] rounded-xl p-5 flex flex-col gap-5 w-[300px] h-full overflow-y-auto">
-      <h2 className="text-lg font-bold text-[#4ade80]">Taktik Details</h2>
-
-      {/* Name */}
-      <div>
-        <label className="block text-xs text-[#94a3b8] mb-1">Name</label>
-        <input
-          value={name}
-          onChange={e => setTacticMeta({ name: e.target.value })}
-          className="w-full px-3 py-2 rounded-lg bg-[#0f172a] border border-[#334155] text-white text-sm focus:border-[#4ade80] focus:outline-none"
-        />
-      </div>
-
-      {/* Description */}
-      <div>
-        <label className="block text-xs text-[#94a3b8] mb-1">Beschreibung</label>
-        <textarea
-          value={description}
-          onChange={e => setTacticMeta({ description: e.target.value })}
-          rows={2}
-          className="w-full px-3 py-2 rounded-lg bg-[#0f172a] border border-[#334155] text-white text-sm focus:border-[#4ade80] focus:outline-none resize-none"
-        />
-      </div>
-
-      {/* Home team picker */}
-      <div>
-        <label className="block text-xs text-[#94a3b8] mb-1 flex items-center gap-1">
-          <Users size={12} /> Eigene Mannschaft
-        </label>
-        <select
-          value={teamId ?? ''}
-          onChange={e => handleHomeTeamChange(e.target.value)}
-          className="w-full px-3 py-2 rounded-lg bg-[#0f172a] border border-[#334155] text-white text-sm focus:border-[#4ade80] focus:outline-none"
-        >
-          <option value="">— Default —</option>
-          {teams.map(t => (
-            <option key={t.id} value={t.id}>{t.name}</option>
-          ))}
-        </select>
-      </div>
-
-      {/* Away team picker */}
-      <div>
-        <label className="block text-xs text-[#94a3b8] mb-1 flex items-center gap-1">
-          <Shield size={12} /> Gegner
-        </label>
-        <select
-          value={opponentTeamId ?? ''}
-          onChange={e => handleAwayTeamChange(e.target.value)}
-          className="w-full px-3 py-2 rounded-lg bg-[#0f172a] border border-[#334155] text-white text-sm focus:border-[#4ade80] focus:outline-none"
-        >
-          <option value="">— Default —</option>
-          {teams.map(t => (
-            <option key={t.id} value={t.id}>{t.name}</option>
-          ))}
-        </select>
-      </div>
-
-      {/* Tags */}
-      <div>
-        <label className="block text-xs text-[#94a3b8] mb-1 flex items-center gap-1">
-          <Tag size={12} /> Tags
-        </label>
-        <div className="flex flex-wrap gap-1 mb-2">
-          {tags.map(tag => (
-            <span key={tag} className="flex items-center gap-1 bg-[#334155] text-[#94a3b8] text-xs px-2 py-1 rounded-full">
-              {tag}
-              <button onClick={() => removeTag(tag)} className="hover:text-white"><X size={12} /></button>
-            </span>
-          ))}
-        </div>
-        <div className="flex gap-1">
-          <input
-            value={tagInput}
-            onChange={e => setTagInput(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && addTag()}
-            placeholder="Tag hinzufügen..."
-            className="flex-1 px-2 py-1 rounded-lg bg-[#0f172a] border border-[#334155] text-white text-xs focus:border-[#4ade80] focus:outline-none"
-          />
-          <button onClick={addTag} className="px-2 py-1 rounded-lg bg-[#334155] text-xs text-[#94a3b8] hover:bg-[#475569]">+</button>
-        </div>
-      </div>
-
-      {/* Share Toggle */}
+    <motion.aside 
+      initial={{ x: 300, opacity: 0 }}
+      animate={{ x: 0, opacity: 1 }}
+      className="bg-[#0f172a] border-l border-slate-800/50 p-6 flex flex-col gap-8 w-[340px] h-full overflow-y-auto z-10"
+    >
       <div className="flex items-center justify-between">
-        <label className="text-sm text-[#94a3b8] flex items-center gap-1">
-          <Share2 size={14} /> Öffentlich teilen
-        </label>
-        <button
-          onClick={handleToggleShare}
-          disabled={!tacticId}
-          className={`w-10 h-5 rounded-full transition-colors relative ${isPublic ? 'bg-[#4ade80]' : 'bg-[#334155]'} ${!tacticId ? 'opacity-50 cursor-not-allowed' : ''}`}
-        >
-          <span className={`absolute top-0.5 w-4 h-4 rounded-full bg-white transition-transform ${isPublic ? 'translate-x-5' : 'translate-x-0.5'}`} />
-        </button>
+        <h2 className="text-xl font-black text-white tracking-tight flex items-center gap-2">
+          <Info size={20} className="text-[#4ade80]" />
+          Konfiguration
+        </h2>
+        <div className="text-[10px] font-black bg-[#4ade80]/10 text-[#4ade80] px-2 py-0.5 rounded-full uppercase tracking-widest">
+          {tacticId ? 'Edit-Mode' : 'New'}
+        </div>
       </div>
-      {!tacticId && (
-        <p className="text-xs text-[#64748b]">Bitte zuerst speichern, um zu teilen.</p>
-      )}
-      {isPublic && uuid && (
-        <button onClick={copyShareLink} className="text-xs text-[#4ade80] hover:underline text-left">
-          Share-Link kopieren
-        </button>
-      )}
 
-      {/* Actions */}
-      <div className="flex flex-col gap-2 mt-auto">
-        <button
+      <div className="space-y-6">
+        {/* Name & Description Section */}
+        <section className="space-y-4">
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest px-1">Taktik Name</label>
+            <input
+              value={name}
+              onChange={e => setTacticMeta({ name: e.target.value })}
+              placeholder="z.B. 4-3-3 Gegenpressing"
+              className="w-full px-4 py-3 rounded-xl bg-slate-900/50 border border-slate-800/50 text-white text-sm font-bold focus:border-[#4ade80]/50 focus:ring-1 focus:ring-[#4ade80]/20 transition-all outline-none"
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest px-1">Beschreibung</label>
+            <textarea
+              value={description}
+              onChange={e => setTacticMeta({ description: e.target.value })}
+              rows={3}
+              placeholder="Beschreibe deine taktische Vision..."
+              className="w-full px-4 py-3 rounded-xl bg-slate-900/50 border border-slate-800/50 text-white text-sm font-medium focus:border-[#4ade80]/50 focus:ring-1 focus:ring-[#4ade80]/20 transition-all outline-none resize-none leading-relaxed"
+            />
+          </div>
+        </section>
+
+        {/* Teams Section */}
+        <section className="p-4 rounded-2xl bg-slate-900/30 border border-slate-800/50 space-y-4">
+          <div className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+            <Users size={12} /> Mannschaften
+          </div>
+          
+          <div className="space-y-3">
+            <div className="space-y-1">
+              <label className="text-[9px] font-bold text-slate-500 uppercase ml-1">Eigene Elf</label>
+              <select
+                value={teamId ?? ''}
+                onChange={e => handleHomeTeamChange(e.target.value)}
+                className="w-full px-3 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-white text-xs font-bold focus:border-[#4ade80]/50 outline-none appearance-none"
+              >
+                <option value="">— Standard —</option>
+                {teams.map(t => (
+                  <option key={t.id} value={t.id}>{t.name}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-[9px] font-bold text-slate-500 uppercase ml-1">Gegner</label>
+              <select
+                value={opponentTeamId ?? ''}
+                onChange={e => handleAwayTeamChange(e.target.value)}
+                className="w-full px-3 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-white text-xs font-bold focus:border-[#4ade80]/50 outline-none appearance-none"
+              >
+                <option value="">— Standard —</option>
+                {teams.map(t => (
+                  <option key={t.id} value={t.id}>{t.name}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </section>
+
+        {/* Tags Section */}
+        <section className="space-y-3">
+          <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest px-1 flex items-center gap-2">
+            <Tag size={12} /> Tags & Kategorien
+          </label>
+          <div className="flex flex-wrap gap-1.5 min-h-[28px]">
+            <AnimatePresence>
+              {tags.map(tag => (
+                <motion.span 
+                  key={tag}
+                  initial={{ scale: 0.8, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0.8, opacity: 0 }}
+                  className="flex items-center gap-1.5 bg-[#4ade80]/10 text-[#4ade80] text-[10px] font-black px-2.5 py-1 rounded-lg border border-[#4ade80]/20"
+                >
+                  {tag}
+                  <button onClick={() => removeTag(tag)} className="hover:text-white transition-colors"><X size={10} /></button>
+                </motion.span>
+              ))}
+            </AnimatePresence>
+          </div>
+          <div className="flex gap-2">
+            <input
+              value={tagInput}
+              onChange={e => setTagInput(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && addTag()}
+              placeholder="Tag hinzufügen..."
+              className="flex-1 px-3 py-2 rounded-xl bg-slate-900/50 border border-slate-800/50 text-white text-xs font-bold focus:border-[#4ade80]/50 outline-none"
+            />
+            <button 
+              onClick={addTag} 
+              className="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center text-[#4ade80] hover:bg-slate-700 transition-colors shadow-lg"
+            >
+              +
+            </button>
+          </div>
+        </section>
+
+        {/* Share Section */}
+        <section className="pt-4 border-t border-slate-800/50 space-y-4">
+          <div className="flex items-center justify-between p-4 rounded-2xl bg-slate-900/30 border border-slate-800/50">
+            <div className="flex items-center gap-3">
+              <div className={cn("p-2 rounded-lg transition-colors", isPublic ? "bg-[#4ade80]/20 text-[#4ade80]" : "bg-slate-800 text-slate-500")}>
+                <Share2 size={16} />
+              </div>
+              <div>
+                <p className="text-xs font-black text-white uppercase tracking-tight">Public Share</p>
+                <p className="text-[9px] text-slate-500 font-bold">{isPublic ? 'Sichtbar für alle' : 'Nur für dich'}</p>
+              </div>
+            </div>
+            <button
+              onClick={handleToggleShare}
+              disabled={!tacticId}
+              className={cn(
+                "w-12 h-6 rounded-full transition-all relative",
+                isPublic ? 'bg-[#4ade80]' : 'bg-slate-700',
+                !tacticId && 'opacity-30 cursor-not-allowed'
+              )}
+            >
+              <motion.span 
+                animate={{ x: isPublic ? 26 : 4 }}
+                className="absolute top-1 w-4 h-4 rounded-full bg-white shadow-sm" 
+              />
+            </button>
+          </div>
+          
+          {isPublic && uuid && (
+            <motion.button 
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              onClick={copyShareLink} 
+              className="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-slate-900 border border-slate-800 hover:border-[#4ade80]/30 transition-all group"
+            >
+              <span className="text-[10px] font-black text-slate-400 uppercase group-hover:text-white transition-colors">
+                {copied ? 'Link Kopiert!' : 'Share-Link Kopieren'}
+              </span>
+              {copied ? <Check size={14} className="text-[#4ade80]" /> : <Copy size={14} className="text-slate-600 group-hover:text-[#4ade80]" />}
+            </motion.button>
+          )}
+        </section>
+      </div>
+
+      {/* Primary Actions */}
+      <div className="mt-auto space-y-3">
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
           onClick={handleSave}
           disabled={saving}
-          className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-[#4ade80] text-[#0f172a] font-semibold text-sm hover:bg-[#22c55e] transition-colors disabled:opacity-50"
+          className="w-full flex items-center justify-center gap-3 px-6 py-4 rounded-2xl bg-[#4ade80] text-[#020617] font-black text-sm shadow-lg shadow-[#4ade80]/10 hover:shadow-[#4ade80]/20 transition-all disabled:opacity-50"
         >
-          <Save size={16} /> {saving ? 'Speichern...' : 'Speichern'}
-        </button>
+          {saving ? (
+            <div className="w-5 h-5 border-2 border-[#020617]/30 border-t-[#020617] rounded-full animate-spin" />
+          ) : (
+            <Save size={18} strokeWidth={3} />
+          )}
+          <span>{saving ? 'SICHERN...' : 'TAKTIK SPEICHERN'}</span>
+        </motion.button>
+
         {tacticId && (
-          <button
+          <motion.button
+            whileHover={{ scale: 1.02, backgroundColor: "rgba(30, 41, 59, 0.8)" }}
+            whileTap={{ scale: 0.98 }}
             onClick={handleExportGif}
             disabled={exporting}
-            className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-[#334155] text-white text-sm hover:bg-[#475569] transition-colors disabled:opacity-50"
+            className="w-full flex items-center justify-center gap-3 px-6 py-4 rounded-2xl bg-slate-900 border border-slate-800 text-white font-black text-sm transition-all disabled:opacity-50"
           >
-            <Download size={16} /> {exporting ? 'Exportiere...' : 'GIF Export'}
-          </button>
+            {exporting ? (
+              <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            ) : (
+              <Download size={18} strokeWidth={3} className="text-[#4ade80]" />
+            )}
+            <span>{exporting ? 'EXPORTIERE...' : 'GIF EXPORT'}</span>
+          </motion.button>
         )}
       </div>
-    </div>
+    </motion.aside>
   );
 }

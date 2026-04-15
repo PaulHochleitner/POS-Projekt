@@ -46,7 +46,7 @@ class PlayerControllerTest {
 
     @Test
     void shouldGetPlayersByTeam() throws Exception {
-        PlayerDto player = new PlayerDto(1L, "Test Player", 10, Position.ST, 80, 75, 85, 70, 65, 72, null, 1L);
+        PlayerDto player = new PlayerDto(1L, "Test Player", 10, Position.ST, 80, 75, 85, 70, 65, 72, null, 1L, null);
         when(playerService.findByTeamId(1L)).thenReturn(List.of(player));
 
         mockMvc.perform(get("/api/teams/1/players"))
@@ -60,8 +60,8 @@ class PlayerControllerTest {
     @WithMockUser
     void shouldCreatePlayer() throws Exception {
         PlayerDto.CreatePlayerRequest request = new PlayerDto.CreatePlayerRequest(
-                "New Player", 7, Position.LW, 90, 70, 80, 65, 60, 75);
-        PlayerDto created = new PlayerDto(1L, "New Player", 7, Position.LW, 90, 70, 80, 65, 60, 75, null, 1L);
+                "New Player", 7, Position.LW, 90, 70, 80, 65, 60, 75, null);
+        PlayerDto created = new PlayerDto(1L, "New Player", 7, Position.LW, 90, 70, 80, 65, 60, 75, null, 1L, null);
         when(playerService.create(eq(1L), any())).thenReturn(created);
 
         mockMvc.perform(post("/api/teams/1/players")
@@ -76,8 +76,8 @@ class PlayerControllerTest {
     @WithMockUser
     void shouldUpdatePlayer() throws Exception {
         PlayerDto.UpdatePlayerRequest request = new PlayerDto.UpdatePlayerRequest(
-                "Updated Player", 9, Position.ST, 85, 72, 90, 68, 70, 77);
-        PlayerDto updated = new PlayerDto(1L, "Updated Player", 9, Position.ST, 85, 72, 90, 68, 70, 77, null, 1L);
+                "Updated Player", 9, Position.ST, 85, 72, 90, 68, 70, 77, null);
+        PlayerDto updated = new PlayerDto(1L, "Updated Player", 9, Position.ST, 85, 72, 90, 68, 70, 77, null, 1L, null);
         when(playerService.update(eq(1L), any())).thenReturn(updated);
 
         mockMvc.perform(put("/api/players/1")

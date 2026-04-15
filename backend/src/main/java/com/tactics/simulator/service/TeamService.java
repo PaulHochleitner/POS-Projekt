@@ -82,7 +82,7 @@ public class TeamService {
                         p.getId(), p.getName(), p.getNumber(), p.getPosition(),
                         p.getPace(), p.getPassing(), p.getShooting(),
                         p.getDefending(), p.getPhysical(), p.getDribbling(),
-                        p.getImageUrl(), team.getId()))
+                        p.getImageUrl(), team.getId(), p.getNotes()))
                 .toList();
         return new TeamDto(
                 team.getId(), team.getName(), team.getPrimaryColor(),

@@ -33,6 +33,7 @@ public class SecurityConfig {
                         // Public endpoints
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/shared/**").permitAll()
+                        .requestMatchers("/api/share/**").permitAll()
                         .requestMatchers("/api/uploads/**").permitAll()
                         .requestMatchers("/h2-console/**").permitAll()
                         // Allow reading tactics/teams/tags without auth

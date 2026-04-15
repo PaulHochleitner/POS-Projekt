@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { useTacticStore } from '../store/useTacticStore';
 import { tacticApi } from '../api/tacticApi';
 import { teamApi } from '../api/teamApi';
@@ -30,7 +31,6 @@ export default function TacticEditorPage() {
           const data: FrameData = JSON.parse(tactic.latestVersion.frames);
           loadFrames(data);
         }
-        // Pull team data so colors + roster refresh on the canvas
         if (tactic.teamId) {
           try { setHomeTeam(await teamApi.getById(tactic.teamId)); } catch { /* noop */ }
         }
@@ -44,13 +44,29 @@ export default function TacticEditorPage() {
   }, [id]);
 
   return (
-    <div className="flex gap-4 h-full">
-      <div className="flex-1 flex flex-col gap-4">
-        <PitchCanvas />
-        <KeyframeTimeline />
-        <PlaybackControls />
+    <div className="flex flex-col lg:flex-row gap-8 h-full">
+      <div className="flex-1 flex flex-col gap-8 min-w-0">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex-1 min-h-0"
+        >
+          <PitchCanvas />
+        </motion.div>
+        
+        <div className="space-y-6">
+          <KeyframeTimeline />
+          <PlaybackControls />
+        </div>
       </div>
-      <TacticSidebar />
+      
+      <motion.div
+        initial={{ opacity: 0, x: 20 }}
+        animate={{ opacity: 1, x: 0 }}
+        className="flex-shrink-0"
+      >
+        <TacticSidebar />
+      </motion.div>
     </div>
   );
 }

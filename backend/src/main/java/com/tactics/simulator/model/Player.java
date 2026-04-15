@@ -61,4 +61,7 @@ public class Player {
     private Integer dribbling;
 
     private String imageUrl;
+
+    @Column(length = 2000)
+    private String notes;
 }

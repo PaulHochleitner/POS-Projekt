@@ -45,6 +45,7 @@ public class PlayerService {
                 .defending(request.defending())
                 .physical(request.physical())
                 .dribbling(request.dribbling())
+                .notes(request.notes())
                 .build();
         return toDto(playerRepository.save(player));
     }
@@ -63,6 +64,7 @@ public class PlayerService {
         player.setDefending(request.defending());
         player.setPhysical(request.physical());
         player.setDribbling(request.dribbling());
+        player.setNotes(request.notes());
         return toDto(playerRepository.save(player));
     }
 
@@ -79,6 +81,7 @@ public class PlayerService {
                 player.getId(), player.getName(), player.getNumber(),
                 player.getPosition(), player.getPace(), player.getPassing(),
                 player.getShooting(), player.getDefending(), player.getPhysical(),
-                player.getDribbling(), player.getImageUrl(), player.getTeam().getId());
+                player.getDribbling(), player.getImageUrl(), player.getTeam().getId(),
+                player.getNotes());
     }
 }

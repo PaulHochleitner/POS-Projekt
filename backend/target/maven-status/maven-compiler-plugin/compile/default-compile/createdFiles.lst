@@ -63,13 +63,16 @@ com\tactics\simulator\dto\VersionCompareDto$DiffSummary.class
 com\tactics\simulator\repository\TacticRepository.class
 com\tactics\simulator\controller\AuthController.class
 com\tactics\simulator\controller\ValidationController.class
+com\tactics\simulator\service\TunnelService.class
 com\tactics\simulator\service\TeamService.class
 com\tactics\simulator\dto\PlayerDto$CreatePlayerRequest.class
 com\tactics\simulator\model\Tactic$TacticBuilder.class
 com\tactics\simulator\repository\UserRepository.class
 com\tactics\simulator\controller\TacticVersionController.class
 com\tactics\simulator\dto\AuthDto.class
+com\tactics\simulator\controller\SpaFallbackController.class
 com\tactics\simulator\dto\TacticVersionDto$CreateVersionRequest.class
 com\tactics\simulator\controller\PlayerImageController.class
 com\tactics\simulator\dto\TeamDto$UpdateTeamRequest.class
+com\tactics\simulator\controller\TunnelController.class
 com\tactics\simulator\service\JwtService.class

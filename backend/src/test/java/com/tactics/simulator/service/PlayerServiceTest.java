@@ -73,7 +73,7 @@ class PlayerServiceTest {
         when(playerRepository.save(any(Player.class))).thenReturn(saved);
 
         PlayerDto.CreatePlayerRequest request = new PlayerDto.CreatePlayerRequest(
-                "Test Player", 10, Position.ST, 80, 75, 85, 70, 65, 72);
+                "Test Player", 10, Position.ST, 80, 75, 85, 70, 65, 72, null);
         PlayerDto result = playerService.create(1L, request);
 
         assertThat(result.name()).isEqualTo("Test Player");
@@ -89,7 +89,7 @@ class PlayerServiceTest {
         when(playerRepository.save(any(Player.class))).thenReturn(existing);
 
         PlayerDto.UpdatePlayerRequest request = new PlayerDto.UpdatePlayerRequest(
-                "Updated", 9, Position.CAM, 70, 85, 60, 55, 50, 80);
+                "Updated", 9, Position.CAM, 70, 85, 60, 55, 50, 80, null);
         PlayerDto result = playerService.update(1L, request);
 
         assertThat(result.name()).isEqualTo("Updated");

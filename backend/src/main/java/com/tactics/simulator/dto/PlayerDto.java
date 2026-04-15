@@ -15,7 +15,8 @@ public record PlayerDto(
         Integer physical,
         Integer dribbling,
         String imageUrl,
-        Long teamId
+        Long teamId,
+        String notes
 ) {
     public record CreatePlayerRequest(
             @NotBlank String name,
@@ -26,7 +27,8 @@ public record PlayerDto(
             @Min(1) @Max(99) Integer shooting,
             @Min(1) @Max(99) Integer defending,
             @Min(1) @Max(99) Integer physical,
-            @Min(1) @Max(99) Integer dribbling
+            @Min(1) @Max(99) Integer dribbling,
+            @Size(max = 2000) String notes
     ) {}
 
     public record UpdatePlayerRequest(
@@ -38,6 +40,7 @@ public record PlayerDto(
             @Min(1) @Max(99) Integer shooting,
             @Min(1) @Max(99) Integer defending,
             @Min(1) @Max(99) Integer physical,
-            @Min(1) @Max(99) Integer dribbling
+            @Min(1) @Max(99) Integer dribbling,
+            @Size(max = 2000) String notes
     ) {}
 }
