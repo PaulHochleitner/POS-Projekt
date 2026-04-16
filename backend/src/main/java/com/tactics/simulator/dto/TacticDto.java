@@ -14,7 +14,6 @@ public record TacticDto(
         String teamName,
         Long opponentTeamId,
         String opponentTeamName,
-        Boolean isPublic,
         LocalDateTime createdAt,
         LocalDateTime updatedAt,
         Set<String> tags,
@@ -26,7 +25,6 @@ public record TacticDto(
             String description,
             Long teamId,
             Long opponentTeamId,
-            Boolean isPublic,
             Set<String> tags,
             String frames
     ) {}
@@ -36,7 +34,6 @@ public record TacticDto(
             String description,
             Long teamId,
             Long opponentTeamId,
-            Boolean isPublic,
             Set<String> tags
     ) {}
 }

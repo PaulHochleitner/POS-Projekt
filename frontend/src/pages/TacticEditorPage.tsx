@@ -23,7 +23,6 @@ export default function TacticEditorPage() {
           description: tactic.description ?? '',
           teamId: tactic.teamId,
           opponentTeamId: tactic.opponentTeamId,
-          isPublic: tactic.isPublic,
           tags: tactic.tags,
           uuid: tactic.uuid,
         });

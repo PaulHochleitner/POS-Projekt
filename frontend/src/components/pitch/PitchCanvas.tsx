@@ -5,7 +5,7 @@ import { usePlaybackStore } from '../../store/usePlaybackStore';
 import { drawFrame, hitTestPlayer, hitTestBall, canvasToPercent, setRedrawCallback } from './pitchRenderer';
 import { interpolateFrame } from './interpolation';
 import type { Frame } from '../../types';
-import { Maximize2, MousePointer2, Play } from 'lucide-react';
+import { MousePointer2, Play } from 'lucide-react';
 
 interface PitchCanvasProps {
   width?: number;
@@ -183,12 +183,6 @@ export default function PitchCanvas({
               <span className="text-[10px] font-black text-[#020617] uppercase tracking-widest">Simulating</span>
             </motion.div>
           )}
-        </div>
-
-        <div className="absolute bottom-6 right-6 flex items-center gap-2">
-          <button className="p-3 rounded-xl bg-[#020617]/60 backdrop-blur-md border border-white/10 text-white/50 hover:text-white hover:bg-[#020617]/80 transition-all">
-            <Maximize2 size={18} />
-          </button>
         </div>
 
         {/* Interaction Hint */}

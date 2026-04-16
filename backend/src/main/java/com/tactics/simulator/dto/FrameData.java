@@ -22,6 +22,7 @@ public record FrameData(
             int index,
             String label,
             List<PlayerPosition> players,
+            List<PlayerPosition> opponents,
             BallPosition ball
     ) {}
 

@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { teamApi } from '../../api/teamApi';
 import type { Team, Player, Position } from '../../types';
-import { Plus, Trash2, Edit2, Check, X, Upload, Shield, Users, TrendingUp, Search } from 'lucide-react';
+import { Plus, Trash2, Edit2, Check, X, Upload, Shield, Users, TrendingUp } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
@@ -92,6 +92,7 @@ export default function TeamManager({ teamId }: { teamId?: number }) {
       defending: editingPlayer.defending,
       physical: editingPlayer.physical,
       dribbling: editingPlayer.dribbling,
+      imageUrl: editingPlayer.imageUrl,
       notes: editingPlayer.notes,
     });
     const updated = await teamApi.getById(selectedTeam.id);

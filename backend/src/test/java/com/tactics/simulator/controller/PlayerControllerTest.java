@@ -45,6 +45,7 @@ class PlayerControllerTest {
     private UserDetailsService userDetailsService;
 
     @Test
+    @WithMockUser
     void shouldGetPlayersByTeam() throws Exception {
         PlayerDto player = new PlayerDto(1L, "Test Player", 10, Position.ST, 80, 75, 85, 70, 65, 72, null, 1L, null);
         when(playerService.findByTeamId(1L)).thenReturn(List.of(player));
@@ -92,5 +93,11 @@ class PlayerControllerTest {
     void shouldDeletePlayer() throws Exception {
         mockMvc.perform(delete("/api/players/1"))
                 .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void shouldReturn401WhenGettingPlayersUnauthenticated() throws Exception {
+        mockMvc.perform(get("/api/teams/1/players"))
+                .andExpect(status().isForbidden());
     }
 }

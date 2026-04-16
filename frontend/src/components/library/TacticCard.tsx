@@ -2,12 +2,6 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Clock, Layers, Tag, Shield, ChevronRight, TrendingUp } from 'lucide-react';
 import type { Tactic } from '../../types';
-import { clsx, type ClassValue } from 'clsx';
-import { twMerge } from 'tailwind-merge';
-
-function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
-}
 
 export default function TacticCard({ tactic }: { tactic: Tactic }) {
   const navigate = useNavigate();

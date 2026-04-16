@@ -1,9 +1,6 @@
 import type { Frame, PlayerPosition, BallPosition, TeamSide } from '../../types';
 
-const PITCH_COLOR = '#064e3b';
-const PITCH_DARK = '#064736';
 const LINE_COLOR = 'rgba(255, 255, 255, 0.8)';
-const BALL_COLOR = '#ffffff';
 const BALL_OUTLINE = '#000000';
 const PLAYER_RADIUS = 16;
 const BALL_RADIUS = 7;

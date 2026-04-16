@@ -24,13 +24,15 @@ public class TeamService {
     private final UserRepository userRepository;
 
     public List<TeamDto> findAll() {
-        return teamRepository.findAll().stream()
+        User currentUser = getCurrentUser();
+        if (currentUser == null) return List.of();
+        return teamRepository.findByUserIdOrderByCreatedAtDesc(currentUser.getId()).stream()
                 .map(this::toDto)
                 .toList();
     }
 
     public TeamDto findById(Long id) {
-        return toDto(getTeamOrThrow(id));
+        return toDto(getOwnedTeamOrThrow(id));
     }
 
     @Transactional
@@ -47,7 +49,7 @@ public class TeamService {
 
     @Transactional
     public TeamDto update(Long id, TeamDto.UpdateTeamRequest request) {
-        Team team = getTeamOrThrow(id);
+        Team team = getOwnedTeamOrThrow(id);
         team.setName(request.name());
         team.setPrimaryColor(request.primaryColor());
         team.setSecondaryColor(request.secondaryColor());
@@ -57,15 +59,24 @@ public class TeamService {
 
     @Transactional
     public void delete(Long id) {
-        if (!teamRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Team", id);
-        }
-        teamRepository.deleteById(id);
+        Team team = getOwnedTeamOrThrow(id);
+        teamRepository.delete(team);
     }
 
     public Team getTeamOrThrow(Long id) {
         return teamRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Team", id));
+    }
+
+    private Team getOwnedTeamOrThrow(Long id) {
+        Team team = getTeamOrThrow(id);
+        User currentUser = getCurrentUser();
+        if (currentUser == null
+                || team.getUser() == null
+                || !team.getUser().getId().equals(currentUser.getId())) {
+            throw new ResourceNotFoundException("Team", id);
+        }
+        return team;
     }
 
     private User getCurrentUser() {

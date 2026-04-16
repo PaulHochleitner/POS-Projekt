@@ -34,13 +34,6 @@ jwt:
 server:
   port: 8080
 
-app:
-  tunnel:
-    # Auto-spawn cloudflared on startup so the app is reachable from outside.
-    # Requires cloudflared on PATH: `winget install --id Cloudflare.cloudflared`
-    # Set to false to disable (share-links then fall back to localhost).
-    enabled: true
-
 ---
 spring:
   config:

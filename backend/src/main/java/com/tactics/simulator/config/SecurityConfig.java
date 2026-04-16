@@ -32,15 +32,13 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         // Public endpoints
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/shared/**").permitAll()
-                        .requestMatchers("/api/share/**").permitAll()
                         .requestMatchers("/api/uploads/**").permitAll()
                         .requestMatchers("/h2-console/**").permitAll()
-                        // Allow reading tactics/teams/tags without auth
-                        .requestMatchers(HttpMethod.GET, "/api/tactics/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/teams/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/tags/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/players/**").permitAll()
+                        // Tactics require authentication — users only see their own
+                        .requestMatchers(HttpMethod.GET, "/api/tactics/**").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/teams/**").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/tags/**").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/players/**").authenticated()
                         // All write operations require authentication
                         .requestMatchers(HttpMethod.POST, "/api/**").authenticated()
                         .requestMatchers(HttpMethod.PUT, "/api/**").authenticated()

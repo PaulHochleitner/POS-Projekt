@@ -20,7 +20,21 @@ public interface TacticRepository extends JpaRepository<Tactic, Long>, JpaSpecif
            "GROUP BY t HAVING COUNT(DISTINCT tag.name) = :tagCount")
     List<Tactic> findByAllTags(@Param("tagNames") List<String> tagNames, @Param("tagCount") long tagCount);
 
+    @Query("SELECT t FROM Tactic t JOIN t.tags tag WHERE t.user.id = :userId AND tag.name IN :tagNames " +
+           "GROUP BY t HAVING COUNT(DISTINCT tag.name) = :tagCount")
+    List<Tactic> findByUserIdAndAllTags(@Param("userId") Long userId,
+                                        @Param("tagNames") List<String> tagNames,
+                                        @Param("tagCount") long tagCount);
+
     @Query("SELECT t FROM Tactic t WHERE LOWER(t.name) LIKE LOWER(CONCAT('%', :search, '%')) " +
            "OR LOWER(t.description) LIKE LOWER(CONCAT('%', :search, '%'))")
     List<Tactic> searchByNameOrDescription(@Param("search") String search);
+
+    List<Tactic> findByUserIdOrderByUpdatedAtDesc(Long userId);
+
+    @Query("SELECT t FROM Tactic t WHERE t.user.id = :userId " +
+           "AND (LOWER(t.name) LIKE LOWER(CONCAT('%', :search, '%')) " +
+           "  OR LOWER(t.description) LIKE LOWER(CONCAT('%', :search, '%'))) " +
+           "ORDER BY t.updatedAt DESC")
+    List<Tactic> searchByUser(@Param("userId") Long userId, @Param("search") String search);
 }

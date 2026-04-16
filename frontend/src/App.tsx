@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, NavLink, Navigate, useLocation } from 'react-router-dom';
-import { Home, Layout, Users, LogOut, ChevronRight, Settings } from 'lucide-react';
+import { Home, Layout, Users, LogOut, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuthStore } from './store/useAuthStore';
 import DashboardPage from './pages/DashboardPage';
@@ -9,7 +9,6 @@ import TacticLibraryPage from './pages/TacticLibraryPage';
 import TeamsPage from './pages/TeamsPage';
 import TeamDetailPage from './pages/TeamDetailPage';
 import VersionComparePage from './pages/VersionComparePage';
-import SharedViewPage from './pages/SharedViewPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import { clsx, type ClassValue } from 'clsx';
@@ -157,7 +156,6 @@ export default function App() {
         {/* Public routes */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
-        <Route path="/shared/:uuid" element={<SharedViewPage />} />
 
         {/* Protected routes */}
         <Route path="/*" element={

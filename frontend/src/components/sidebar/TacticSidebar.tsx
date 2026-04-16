@@ -4,25 +4,19 @@ import { useTacticStore } from '../../store/useTacticStore';
 import { tacticApi } from '../../api/tacticApi';
 import { teamApi } from '../../api/teamApi';
 import type { Team } from '../../types';
-import { Save, Share2, Download, Tag, X, Users, Shield, Info, ChevronRight, Copy, Check } from 'lucide-react';
-import { clsx, type ClassValue } from 'clsx';
-import { twMerge } from 'tailwind-merge';
-
-function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
-}
+import { Save, Download, Tag, X, Users, Info } from 'lucide-react';
 
 export default function TacticSidebar() {
   const {
-    tacticId, name, description, isPublic, tags, uuid,
+    tacticId, name, description, tags,
     teamId, opponentTeamId,
     setTacticMeta, getFrameData, setHomeTeam, setAwayTeam,
+    clearHomeTeam, clearAwayTeam,
   } = useTacticStore();
   const [tagInput, setTagInput] = useState('');
   const [saving, setSaving] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [teams, setTeams] = useState<Team[]>([]);
-  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     teamApi.getAll().then(setTeams).catch(e => console.error('Could not load teams:', e));
@@ -33,10 +27,10 @@ export default function TacticSidebar() {
     try {
       const framesJson = JSON.stringify(getFrameData());
       if (tacticId) {
-        await tacticApi.update(tacticId, { name, description, teamId, opponentTeamId, isPublic, tags });
+        await tacticApi.update(tacticId, { name, description, teamId, opponentTeamId, tags });
         await tacticApi.createVersion(tacticId, { frames: framesJson });
       } else {
-        const created = await tacticApi.create({ name, description, teamId, opponentTeamId, isPublic, tags, frames: framesJson });
+        const created = await tacticApi.create({ name, description, teamId, opponentTeamId, tags, frames: framesJson });
         setTacticMeta({ tacticId: created.id, uuid: created.uuid });
       }
     } catch (e) {
@@ -83,41 +77,8 @@ export default function TacticSidebar() {
     setTacticMeta({ tags: tags.filter(t => t !== tag) });
   };
 
-  const handleToggleShare = async () => {
-    if (!tacticId) return;
-    const newPublic = !isPublic;
-    try {
-      await tacticApi.update(tacticId, { name, description, teamId, opponentTeamId, isPublic: newPublic, tags });
-      setTacticMeta({ isPublic: newPublic });
-    } catch (e) {
-      console.error('Share toggle failed:', e);
-    }
-  };
-
-  const copyShareLink = async () => {
-    if (!uuid) return;
-    // Try backend auto-tunnel first (cloudflared spawned by TunnelService).
-    // Falls back to window.location.origin if no tunnel is active.
-    let origin = window.location.origin;
-    try {
-      const res = await fetch('/api/share/tunnel-url');
-      if (res.ok) {
-        const data = await res.json();
-        if (data?.url) origin = data.url;
-      }
-    } catch {
-      /* ignore — fall back to window.location.origin */
-    }
-    navigator.clipboard.writeText(`${origin}/shared/${uuid}`);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
   const handleHomeTeamChange = async (id: string) => {
-    if (!id) {
-      setTacticMeta({ teamId: null });
-      return;
-    }
+    if (!id) { clearHomeTeam(); return; }
     try {
       const team = await teamApi.getById(Number(id));
       setHomeTeam(team);
@@ -127,10 +88,7 @@ export default function TacticSidebar() {
   };
 
   const handleAwayTeamChange = async (id: string) => {
-    if (!id) {
-      setTacticMeta({ opponentTeamId: null });
-      return;
-    }
+    if (!id) { clearAwayTeam(); return; }
     try {
       const team = await teamApi.getById(Number(id));
       setAwayTeam(team);
@@ -255,48 +213,6 @@ export default function TacticSidebar() {
           </div>
         </section>
 
-        {/* Share Section */}
-        <section className="pt-4 border-t border-slate-800/50 space-y-4">
-          <div className="flex items-center justify-between p-4 rounded-2xl bg-slate-900/30 border border-slate-800/50">
-            <div className="flex items-center gap-3">
-              <div className={cn("p-2 rounded-lg transition-colors", isPublic ? "bg-[#4ade80]/20 text-[#4ade80]" : "bg-slate-800 text-slate-500")}>
-                <Share2 size={16} />
-              </div>
-              <div>
-                <p className="text-xs font-black text-white uppercase tracking-tight">Public Share</p>
-                <p className="text-[9px] text-slate-500 font-bold">{isPublic ? 'Sichtbar für alle' : 'Nur für dich'}</p>
-              </div>
-            </div>
-            <button
-              onClick={handleToggleShare}
-              disabled={!tacticId}
-              className={cn(
-                "w-12 h-6 rounded-full transition-all relative",
-                isPublic ? 'bg-[#4ade80]' : 'bg-slate-700',
-                !tacticId && 'opacity-30 cursor-not-allowed'
-              )}
-            >
-              <motion.span 
-                animate={{ x: isPublic ? 26 : 4 }}
-                className="absolute top-1 w-4 h-4 rounded-full bg-white shadow-sm" 
-              />
-            </button>
-          </div>
-          
-          {isPublic && uuid && (
-            <motion.button 
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              onClick={copyShareLink} 
-              className="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-slate-900 border border-slate-800 hover:border-[#4ade80]/30 transition-all group"
-            >
-              <span className="text-[10px] font-black text-slate-400 uppercase group-hover:text-white transition-colors">
-                {copied ? 'Link Kopiert!' : 'Share-Link Kopieren'}
-              </span>
-              {copied ? <Check size={14} className="text-[#4ade80]" /> : <Copy size={14} className="text-slate-600 group-hover:text-[#4ade80]" />}
-            </motion.button>
-          )}
-        </section>
       </div>
 
       {/* Primary Actions */}

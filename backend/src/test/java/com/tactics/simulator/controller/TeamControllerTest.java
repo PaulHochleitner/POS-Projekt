@@ -47,6 +47,7 @@ class TeamControllerTest {
     private UserDetailsService userDetailsService;
 
     @Test
+    @WithMockUser
     void shouldGetAllTeams() throws Exception {
         TeamDto team = new TeamDto(1L, "FC Test", "#FFD700", "#DC143C", null,
                 LocalDateTime.now(), List.of());
@@ -59,6 +60,7 @@ class TeamControllerTest {
     }
 
     @Test
+    @WithMockUser
     void shouldGetTeamById() throws Exception {
         TeamDto team = new TeamDto(1L, "FC Test", "#FFD700", "#DC143C", null,
                 LocalDateTime.now(), List.of());
@@ -70,6 +72,7 @@ class TeamControllerTest {
     }
 
     @Test
+    @WithMockUser
     void shouldReturn404WhenTeamNotFound() throws Exception {
         when(teamService.findById(99L)).thenThrow(new ResourceNotFoundException("Team", 99L));
 
@@ -136,5 +139,11 @@ class TeamControllerTest {
 
         mockMvc.perform(delete("/api/teams/99"))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void shouldReturn401WhenNotAuthenticated() throws Exception {
+        mockMvc.perform(get("/api/teams"))
+                .andExpect(status().isForbidden());
     }
 }

@@ -35,7 +35,6 @@ export interface Tactic {
   teamName: string | null;
   opponentTeamId: number | null;
   opponentTeamName: string | null;
-  isPublic: boolean;
   createdAt: string;
   updatedAt: string;
   tags: string[];

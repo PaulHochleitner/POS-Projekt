@@ -51,7 +51,6 @@ interface TacticState {
   opponentTeamId: number | null;
   homeColor: string;
   awayColor: string;
-  isPublic: boolean;
   tags: string[];
   uuid: string | null;
   frames: Frame[];
@@ -61,7 +60,7 @@ interface TacticState {
   selectedBall: boolean;
   isDirty: boolean;
 
-  setTacticMeta: (meta: { tacticId?: number | null; name?: string; description?: string; teamId?: number | null; opponentTeamId?: number | null; isPublic?: boolean; tags?: string[]; uuid?: string | null }) => void;
+  setTacticMeta: (meta: { tacticId?: number | null; name?: string; description?: string; teamId?: number | null; opponentTeamId?: number | null; tags?: string[]; uuid?: string | null }) => void;
   loadFrames: (data: FrameData) => void;
   setCurrentFrame: (index: number) => void;
   addFrame: (label?: string) => void;
@@ -72,6 +71,8 @@ interface TacticState {
   selectBall: (selected: boolean) => void;
   setHomeTeam: (team: Team) => void;
   setAwayTeam: (team: Team) => void;
+  clearHomeTeam: () => void;
+  clearAwayTeam: () => void;
   getCurrentFrame: () => Frame;
   getFrameData: () => FrameData;
   reset: () => void;
@@ -102,7 +103,6 @@ export const useTacticStore = create<TacticState>((set, get) => ({
   opponentTeamId: null,
   homeColor: '#1e3a5f',
   awayColor: '#dc2626',
-  isPublic: false,
   tags: [],
   uuid: null,
   frames: [makeInitialFrame()],
@@ -203,6 +203,23 @@ export const useTacticStore = create<TacticState>((set, get) => ({
     };
   }),
 
+  // Team-auf-Keine: Positionen bleiben (Paul hat sie evtl. mühsam arrangiert),
+  // aber Namen und Bilder verschwinden. applyRoster mit leerem Roster räumt
+  // playerName/imageUrl pro Slot — genau das wollen wir hier.
+  clearHomeTeam: () => set((s) => ({
+    frames: s.frames.map(f => ({ ...f, players: applyRoster(f.players, [], 0) })),
+    teamId: null,
+    homeColor: '#1e3a5f',
+    isDirty: true,
+  })),
+
+  clearAwayTeam: () => set((s) => ({
+    frames: s.frames.map(f => ({ ...f, opponents: applyRoster(f.opponents, [], 100000) })),
+    opponentTeamId: null,
+    awayColor: '#dc2626',
+    isDirty: true,
+  })),
+
   getCurrentFrame: () => {
     const s = get();
     return s.frames[s.currentFrameIndex];
@@ -216,7 +233,7 @@ export const useTacticStore = create<TacticState>((set, get) => ({
   reset: () => set({
     tacticId: null, name: 'Neue Taktik', description: '', teamId: null, opponentTeamId: null,
     homeColor: '#1e3a5f', awayColor: '#dc2626',
-    isPublic: false, tags: [], uuid: null,
+    tags: [], uuid: null,
     frames: [makeInitialFrame()],
     currentFrameIndex: 0, selectedPlayerId: null, selectedTeam: null, selectedBall: false, isDirty: false,
   }),

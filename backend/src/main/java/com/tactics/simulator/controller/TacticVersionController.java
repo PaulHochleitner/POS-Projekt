@@ -3,6 +3,7 @@ package com.tactics.simulator.controller;
 import com.tactics.simulator.dto.TacticVersionDto;
 import com.tactics.simulator.dto.VersionCompareDto;
 import com.tactics.simulator.service.TacticVersionService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -29,7 +30,7 @@ public class TacticVersionController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public TacticVersionDto create(@PathVariable Long tacticId,
-                                   @RequestBody TacticVersionDto.CreateVersionRequest request) {
+                                   @Valid @RequestBody TacticVersionDto.CreateVersionRequest request) {
         return versionService.create(tacticId, request);
     }
 

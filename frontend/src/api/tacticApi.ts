@@ -5,9 +5,9 @@ export const tacticApi = {
   getAll: (params?: { tags?: string[]; search?: string }) =>
     client.get<Tactic[]>('/tactics', { params }).then(r => r.data),
   getById: (id: number) => client.get<Tactic>(`/tactics/${id}`).then(r => r.data),
-  create: (data: { name: string; description?: string; teamId?: number | null; opponentTeamId?: number | null; isPublic?: boolean; tags?: string[]; frames?: string }) =>
+  create: (data: { name: string; description?: string; teamId?: number | null; opponentTeamId?: number | null; tags?: string[]; frames?: string }) =>
     client.post<Tactic>('/tactics', data).then(r => r.data),
-  update: (id: number, data: { name?: string; description?: string; teamId?: number | null; opponentTeamId?: number | null; isPublic?: boolean; tags?: string[] }) =>
+  update: (id: number, data: { name?: string; description?: string; teamId?: number | null; opponentTeamId?: number | null; tags?: string[] }) =>
     client.put<Tactic>(`/tactics/${id}`, data).then(r => r.data),
   delete: (id: number) => client.delete(`/tactics/${id}`),
 
@@ -19,9 +19,6 @@ export const tacticApi = {
     client.post<TacticVersion>(`/tactics/${tacticId}/versions`, data).then(r => r.data),
   compareVersions: (tacticId: number, v1: number, v2: number) =>
     client.get<VersionCompare>(`/tactics/${tacticId}/versions/compare`, { params: { v1, v2 } }).then(r => r.data),
-
-  getShared: (uuid: string) => client.get<Tactic>(`/shared/${uuid}`).then(r => r.data),
-  fork: (uuid: string) => client.post<Tactic>(`/shared/${uuid}/fork`).then(r => r.data),
 
   validateLineup: (frames: string) =>
     client.post<ValidationResult>('/validate/lineup', frames).then(r => r.data),

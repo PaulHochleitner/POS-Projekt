@@ -24,7 +24,7 @@ client.interceptors.response.use(
       localStorage.removeItem('email');
       // Only redirect if not already on a public page
       const path = window.location.pathname;
-      if (!path.startsWith('/login') && !path.startsWith('/register') && !path.startsWith('/shared/')) {
+      if (!path.startsWith('/login') && !path.startsWith('/register')) {
         window.location.href = '/login';
       }
     }

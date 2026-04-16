@@ -32,14 +32,6 @@ public class GlobalExceptionHandler {
         return problem;
     }
 
-    @ExceptionHandler(TacticNotPublicException.class)
-    public ProblemDetail handleTacticNotPublic(TacticNotPublicException ex) {
-        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN, ex.getMessage());
-        problem.setTitle("Tactic Not Public");
-        problem.setType(URI.create("https://api.tactics-simulator.com/errors/not-public"));
-        return problem;
-    }
-
     @ExceptionHandler(IllegalArgumentException.class)
     public ProblemDetail handleIllegalArgument(IllegalArgumentException ex) {
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());

@@ -90,13 +90,13 @@ export default function DashboardPage() {
       </motion.div>
 
       {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 gap-8">
         {/* Recent Tactics List */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="lg:col-span-2 bg-[#0f172a]/40 backdrop-blur-md border border-slate-800/50 rounded-3xl overflow-hidden shadow-2xl"
+          className="bg-[#0f172a]/40 backdrop-blur-md border border-slate-800/50 rounded-3xl overflow-hidden shadow-2xl"
         >
           <div className="p-8 flex items-center justify-between border-b border-slate-800/50">
             <div>
@@ -127,7 +127,7 @@ export default function DashboardPage() {
               </div>
             ) : (
               <div className="space-y-3">
-                {recentTactics.map((t, idx) => (
+                {recentTactics.map((t) => (
                   <motion.button
                     key={t.id}
                     variants={item}
@@ -166,44 +166,6 @@ export default function DashboardPage() {
           </div>
         </motion.div>
 
-        {/* Training Insights / Sidebar Dashboard */}
-        <motion.div 
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.4 }}
-          className="space-y-6"
-        >
-          <div className="bg-gradient-to-br from-[#4ade80] to-[#22c55e] p-8 rounded-3xl text-[#020617] shadow-xl relative overflow-hidden group">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
-            <h3 className="text-2xl font-black tracking-tighter mb-2">Pro Training</h3>
-            <p className="text-sm font-bold text-[#020617]/70 mb-6 leading-relaxed">Analysiere die neuesten Profi-Taktiken der Champions League.</p>
-            <button className="w-full py-3 bg-[#020617] text-white text-xs font-black rounded-xl hover:scale-105 transition-transform shadow-lg">JETZT STARTEN</button>
-          </div>
-
-          <div className="bg-[#0f172a]/40 backdrop-blur-md border border-slate-800/50 p-8 rounded-3xl space-y-6">
-            <h3 className="text-white font-black tracking-tight flex items-center gap-2">
-              <TrendingUp size={18} className="text-[#4ade80]" />
-              System Status
-            </h3>
-            <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <span className="text-xs text-slate-400 font-bold">Backend-Sync</span>
-                <span className="text-[10px] font-black text-[#4ade80] bg-[#4ade80]/10 px-2 py-0.5 rounded-full uppercase tracking-widest">Aktiv</span>
-              </div>
-              <div className="w-full h-1 bg-slate-800 rounded-full overflow-hidden">
-                <motion.div 
-                  initial={{ width: 0 }}
-                  animate={{ width: "95%" }}
-                  transition={{ duration: 1.5, ease: "easeOut" }}
-                  className="h-full bg-[#4ade80]"
-                ></motion.div>
-              </div>
-              <p className="text-[10px] text-slate-500 font-medium leading-relaxed">
-                Alle Systeme laufen optimal. Deine Taktiken sind sicher in der Cloud gespeichert.
-              </p>
-            </div>
-          </div>
-        </motion.div>
       </div>
     </div>
   );

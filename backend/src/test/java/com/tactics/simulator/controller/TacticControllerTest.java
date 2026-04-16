@@ -49,12 +49,13 @@ class TacticControllerTest {
 
     private TacticDto sampleTactic() {
         return new TacticDto(1L, UUID.randomUUID(), "Konter rechts", "Schneller Konter",
-                1L, "FC Test", null, null, false, LocalDateTime.now(), LocalDateTime.now(),
+                1L, "FC Test", null, null, LocalDateTime.now(), LocalDateTime.now(),
                 Set.of("Konter", "4-3-3"), 1,
                 new TacticVersionDto(1L, 1, "Initial", "{}", LocalDateTime.now()));
     }
 
     @Test
+    @WithMockUser
     void shouldGetAllTactics() throws Exception {
         when(tacticService.findAll(any(), any())).thenReturn(List.of(sampleTactic()));
 
@@ -64,6 +65,7 @@ class TacticControllerTest {
     }
 
     @Test
+    @WithMockUser
     void shouldFilterByTags() throws Exception {
         when(tacticService.findAll(eq(List.of("Konter")), any())).thenReturn(List.of(sampleTactic()));
 
@@ -73,6 +75,7 @@ class TacticControllerTest {
     }
 
     @Test
+    @WithMockUser
     void shouldSearchTactics() throws Exception {
         when(tacticService.findAll(any(), eq("rechts"))).thenReturn(List.of(sampleTactic()));
 
@@ -85,7 +88,7 @@ class TacticControllerTest {
     @WithMockUser
     void shouldCreateTactic() throws Exception {
         TacticDto.CreateTacticRequest request = new TacticDto.CreateTacticRequest(
-                "New Tactic", "Description", null, null, false, Set.of("Pressing"), "{}");
+                "New Tactic", "Description", null, null, Set.of("Pressing"), "{}");
         when(tacticService.create(any())).thenReturn(sampleTactic());
 
         mockMvc.perform(post("/api/tactics")
@@ -98,7 +101,7 @@ class TacticControllerTest {
     @WithMockUser
     void shouldUpdateTactic() throws Exception {
         TacticDto.UpdateTacticRequest request = new TacticDto.UpdateTacticRequest(
-                "Updated Name", "New Desc", null, null, true, Set.of("Eckball"));
+                "Updated Name", "New Desc", null, null, Set.of("Eckball"));
         when(tacticService.update(eq(1L), any())).thenReturn(sampleTactic());
 
         mockMvc.perform(put("/api/tactics/1")
@@ -112,5 +115,11 @@ class TacticControllerTest {
     void shouldDeleteTactic() throws Exception {
         mockMvc.perform(delete("/api/tactics/1"))
                 .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void shouldReturn401WhenNotAuthenticated() throws Exception {
+        mockMvc.perform(get("/api/tactics"))
+                .andExpect(status().isForbidden());
     }
 }

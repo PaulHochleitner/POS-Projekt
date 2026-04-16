@@ -27,6 +27,8 @@ public class GifExportService {
     private static final Color PITCH_COLOR = new Color(45, 138, 78);
     private static final Color LINE_COLOR = Color.WHITE;
     private static final Color BALL_COLOR = Color.WHITE;
+    private static final Color HOME_BODY = new Color(30, 58, 95);   // #1e3a5f
+    private static final Color AWAY_BODY = new Color(220, 38, 38);  // #dc2626
 
     private final TacticVersionRepository versionRepository;
     private final ObjectMapper objectMapper;
@@ -88,7 +90,21 @@ public class GifExportService {
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
         drawPitch(g);
-        drawPlayers(g, from, to, t);
+
+        // Home team
+        if (from.players() != null && !from.players().isEmpty()) {
+            List<FrameData.PlayerPosition> toHome = (to.players() != null && !to.players().isEmpty())
+                    ? to.players() : from.players();
+            drawRoster(g, from.players(), toHome, t, HOME_BODY);
+        }
+
+        // Away team (opponents) — may be null for very old saved frames
+        if (from.opponents() != null && !from.opponents().isEmpty()) {
+            List<FrameData.PlayerPosition> toAway = (to.opponents() != null && !to.opponents().isEmpty())
+                    ? to.opponents() : from.opponents();
+            drawRoster(g, from.opponents(), toAway, t, AWAY_BODY);
+        }
+
         drawBall(g, from.ball(), to.ball(), t);
 
         g.dispose();
@@ -136,10 +152,14 @@ public class GifExportService {
         g.drawRect(WIDTH - margin - gaW, HEIGHT / 2 - gaH / 2, gaW, gaH);
     }
 
-    private void drawPlayers(Graphics2D g, FrameData.Frame from, FrameData.Frame to, double t) {
-        for (int i = 0; i < from.players().size(); i++) {
-            FrameData.PlayerPosition pFrom = from.players().get(i);
-            FrameData.PlayerPosition pTo = (i < to.players().size()) ? to.players().get(i) : pFrom;
+    private void drawRoster(Graphics2D g,
+                            List<FrameData.PlayerPosition> fromRoster,
+                            List<FrameData.PlayerPosition> toRoster,
+                            double t,
+                            Color bodyColor) {
+        for (int i = 0; i < fromRoster.size(); i++) {
+            FrameData.PlayerPosition pFrom = fromRoster.get(i);
+            FrameData.PlayerPosition pTo = (i < toRoster.size()) ? toRoster.get(i) : pFrom;
 
             double x = lerp(pFrom.x(), pTo.x(), t);
             double y = lerp(pFrom.y(), pTo.y(), t);
@@ -155,7 +175,7 @@ public class GifExportService {
             g.fill(new Ellipse2D.Double(px - PLAYER_RADIUS - 2, py - PLAYER_RADIUS - 2,
                     (PLAYER_RADIUS + 2) * 2, (PLAYER_RADIUS + 2) * 2));
 
-            g.setColor(new Color(30, 60, 120));
+            g.setColor(bodyColor);
             g.fill(new Ellipse2D.Double(px - PLAYER_RADIUS, py - PLAYER_RADIUS,
                     PLAYER_RADIUS * 2, PLAYER_RADIUS * 2));
 
@@ -166,12 +186,12 @@ public class GifExportService {
             FontMetrics fm = g.getFontMetrics();
             g.drawString(num, px - fm.stringWidth(num) / 2, py + fm.getAscent() / 2 - 1);
 
-            // Player name
-            g.setFont(new Font("Arial", Font.PLAIN, 9));
-            fm = g.getFontMetrics();
+            // Player name — only if actually set (skip empty defaults and sticky leftovers)
             String name = pFrom.playerName();
-            if (name != null && name.length() > 10) name = name.substring(0, 10);
-            if (name != null) {
+            if (name != null && !name.isBlank()) {
+                g.setFont(new Font("Arial", Font.PLAIN, 9));
+                fm = g.getFontMetrics();
+                if (name.length() > 14) name = name.substring(0, 14);
                 g.drawString(name, px - fm.stringWidth(name) / 2, py + PLAYER_RADIUS + 12);
             }
         }

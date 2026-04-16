@@ -25,27 +25,27 @@ public class TacticService {
     private final UserRepository userRepository;
 
     public List<TacticDto> findAll(List<String> tags, String search) {
-        List<Tactic> tactics;
+        User currentUser = getCurrentUser();
+        if (currentUser == null) return List.of();
 
-        if (tags != null && !tags.isEmpty() && search != null && !search.isBlank()) {
-            Set<Long> tagFilteredIds = tacticRepository.findByAllTags(tags, tags.size())
-                    .stream().map(Tactic::getId).collect(Collectors.toSet());
-            tactics = tacticRepository.searchByNameOrDescription(search).stream()
-                    .filter(t -> tagFilteredIds.contains(t.getId()))
+        List<Tactic> tactics = (search != null && !search.isBlank())
+                ? tacticRepository.searchByUser(currentUser.getId(), search)
+                : tacticRepository.findByUserIdOrderByUpdatedAtDesc(currentUser.getId());
+
+        if (tags != null && !tags.isEmpty()) {
+            tactics = tactics.stream()
+                    .filter(t -> t.getTags().stream()
+                            .map(TacticTag::getName)
+                            .collect(Collectors.toSet())
+                            .containsAll(tags))
                     .toList();
-        } else if (tags != null && !tags.isEmpty()) {
-            tactics = tacticRepository.findByAllTags(tags, tags.size());
-        } else if (search != null && !search.isBlank()) {
-            tactics = tacticRepository.searchByNameOrDescription(search);
-        } else {
-            tactics = tacticRepository.findAll();
         }
 
         return tactics.stream().map(this::toDto).toList();
     }
 
     public TacticDto findById(Long id) {
-        return toDto(getTacticOrThrow(id));
+        return toDto(getOwnedTacticOrThrow(id));
     }
 
     @Transactional
@@ -72,7 +72,6 @@ public class TacticService {
                 .team(team)
                 .opponentTeam(opponentTeam)
                 .user(currentUser)
-                .isPublic(request.isPublic() != null ? request.isPublic() : false)
                 .tags(tags)
                 .build();
 
@@ -93,11 +92,10 @@ public class TacticService {
 
     @Transactional
     public TacticDto update(Long id, TacticDto.UpdateTacticRequest request) {
-        Tactic tactic = getTacticOrThrow(id);
+        Tactic tactic = getOwnedTacticOrThrow(id);
 
         if (request.name() != null) tactic.setName(request.name());
         if (request.description() != null) tactic.setDescription(request.description());
-        if (request.isPublic() != null) tactic.setIsPublic(request.isPublic());
         if (request.tags() != null) tactic.setTags(resolveTags(request.tags()));
         if (request.teamId() != null) {
             Team team = teamRepository.findById(request.teamId())
@@ -115,15 +113,29 @@ public class TacticService {
 
     @Transactional
     public void delete(Long id) {
-        if (!tacticRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Tactic", id);
-        }
-        tacticRepository.deleteById(id);
+        Tactic tactic = getOwnedTacticOrThrow(id);
+        tacticRepository.delete(tactic);
     }
 
     public Tactic getTacticOrThrow(Long id) {
         return tacticRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Tactic", id));
+    }
+
+    /**
+     * Fetch a tactic and verify it belongs to the current user. Throws 404
+     * (not 403) when access is denied to avoid leaking existence of other
+     * users' tactics.
+     */
+    private Tactic getOwnedTacticOrThrow(Long id) {
+        Tactic tactic = getTacticOrThrow(id);
+        User currentUser = getCurrentUser();
+        if (currentUser == null
+                || tactic.getUser() == null
+                || !tactic.getUser().getId().equals(currentUser.getId())) {
+            throw new ResourceNotFoundException("Tactic", id);
+        }
+        return tactic;
     }
 
     private User getCurrentUser() {
@@ -164,7 +176,7 @@ public class TacticService {
                 tactic.getTeam() != null ? tactic.getTeam().getName() : null,
                 tactic.getOpponentTeam() != null ? tactic.getOpponentTeam().getId() : null,
                 tactic.getOpponentTeam() != null ? tactic.getOpponentTeam().getName() : null,
-                tactic.getIsPublic(), tactic.getCreatedAt(), tactic.getUpdatedAt(),
+                tactic.getCreatedAt(), tactic.getUpdatedAt(),
                 tags, versionCount, latestVersion);
     }
 }
